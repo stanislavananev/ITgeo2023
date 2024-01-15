@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    {% load widget_tweaks %}
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Profile</title>
+    <style>
+        body {
+            background-color: #434252FF;
+            margin: 0;
+        }
+        .welcome {
+            color: coral;
+            font-family: "Helvetica Neue", serif;
+            font-size: 25pt;
+            margin-left: 100px;
+            padding-top: 40px;
+        }
+
+        .links{
+            color: coral;
+            padding-right: 45px;
+            float: right;
+
+            font-family: "Helvetica Neue", serif;
+            font-size: 16pt;
+        }
+        table {
+            {#width: 50%;#}
+            border-collapse: collapse;
+            margin-top: 50pt;
+            margin-left: 100px ;
+            border-radius: 5px;
+            overflow: hidden;
+            border-spacing: 0;
+        }
+
+        th {
+            border: 2px solid #ffa850;
+            background-color: rgba(60, 57, 87, 0.72);
+            text-align: center;
+            padding: 8px;
+            height: 10pt;
+            width: 100pt;
+            font-weight: normal;
+        }
+
+        td {
+            border: 2px solid #ffa850;
+            background-color: rgb(65, 66, 100);
+            text-align: center;
+            padding: 8px;
+            height: 15pt;
+            width: 80pt;
+        }
+        .table_text{
+            color: #ffa850;
+            font-size: 12pt;
+            font-family: "Helvetica Neue", serif;
+        }
+        .input-field {
+            height: 95%;
+            width: 100%;
+            box-sizing: border-box;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            display: block;
+            font-size: 10pt;
+        }
+    </style>
+</head>
+<body>
+    <div class="welcome">
+        {% if request.user.is_authenticated %}
+            <b>Welcome, {{ request.user.username }}!</b>
+            <a class="links" href="{% url 'logout' %}">Logout</a>
+            <a class="links" href="{% url 'user_profile' %}">User profile</a>
+            <a class="links" href="{% url 'exchange_rates' %}">Exchange rates</a>
+        {% endif %}
+    </div>
+    <div>
+        <table>
+            <thead>
+                <tr class="table_text">
+                    <th>User</th>
+                    <th>USD balance</th>
+                    <th>EUR balance</th>
+                    <th>GBP balance</th>
+                    <th>JPY balance</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for user_profile in user_profiles %}
+                    {% if user_profile.user.username == 'admin' %}
+                        <tr class="table_text" id="user-row-{{ user_profile.user.id }}">
+                        <td>{{ user_profile.user }}</td>
+                        <td><input type="number" class="user-input usd" data-userid="{{ user_profile.user.id }}" data-field="usd" value="{{ user_profile.usd_balance }}"></td>
+                        <td><input type="number" class="user-input eur" data-userid="{{ user_profile.user.id }}" data-field="eur" value="{{ user_profile.eur_balance }}"></td>
+                        <td><input type="number" class="user-input gbp" data-userid="{{ user_profile.user.id }}" data-field="gbp" value="{{ user_profile.gbp_balance }}"></td>
+                        <td><input type="number" class="user-input jpy" data-userid="{{ user_profile.user.id }}" data-field="jpy" value="{{ user_profile.jpy_balance }}"></td>
+                    {% endif %}
+                {% endfor %}
+                {% for user_profile in user_profiles %}
+                    {% if user_profile.user.username != 'admin' %}
+                        <tr class="table_text" id="user-row-{{ user_profile.user.id }}">
+                        <td><input type="text" class="user-input username" data-userid="{{ user_profile.user.id }}" data-field="username" value="{{ user_profile.user }}"></td>
+                        <td><input type="number" class="user-input usd" data-userid="{{ user_profile.user.id }}" data-field="usd" value="{{ user_profile.usd_balance }}"></td>
+                        <td><input type="number" class="user-input eur" data-userid="{{ user_profile.user.id }}" data-field="eur" value="{{ user_profile.eur_balance }}"></td>
+                        <td><input type="number" class="user-input gbp" data-userid="{{ user_profile.user.id }}" data-field="gbp" value="{{ user_profile.gbp_balance }}"></td>
+                        <td><input type="number" class="user-input jpy" data-userid="{{ user_profile.user.id }}" data-field="jpy" value="{{ user_profile.jpy_balance }}"></td>
+                        <td><button class="delete-btn" data-userid="{{ user_profile.user.id }}">Delete</button></td>
+                    </tr>
+                    {% endif %}
+                {% endfor %}
+                    <tr class="table_text">
+                        <td><input type="text" id="new-username" placeholder="Username"></td>
+                        <td><input type="number" id="new-usd-balance" placeholder="USD Balance"></td>
+                        <td><input type="number" id="new-eur-balance" placeholder="EUR Balance"></td>
+                        <td><input type="number" id="new-gbp-balance" placeholder="GBP Balance"></td>
+                        <td><input type="number" id="new-jpy-balance" placeholder="JPY Balance"></td>
+                        <td><button id="add-user-portfolio-btn">Add user</button></td>
+                    </tr>`
+            </tbody>
+    </table>
+    </div>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script>
+    $(document).ready(function(){
+        $('.user-input').on('change', function() {
+            const userId = $(this).data('userid');
+            const field = $(this).data('field');
+            const newValue = $(this).val();
+
+
+            $.ajax({
+                url: '{% url "update_info" %}',
+                type: 'POST',
+                data: {
+                    'user_id': userId,
+                    'field': field,
+                    'new_value': newValue,
+                    'csrfmiddlewaretoken': '{{ csrf_token }}'
+                },
+                success: function() {
+                    {#alert('Updated!');#}
+                },
+                error: function() {
+                    alert('Error updating');
+                }
+            });
+        });
+    });
+    $(document).ready(function(){
+        $(document).on('click', '.delete-btn', function() {
+            if (!confirm("Are you sure you want to delete this user portfolio?")) {
+                return;
+            }
+
+            const userId = $(this).data('userid');
+            const rowId = "#user-row-" + userId;
+
+            $.ajax({
+                url: '{% url "delete_user_portfolio" %}',
+                type: 'POST',
+                data: {
+                    'user_id': userId,
+                    'csrfmiddlewaretoken': '{{ csrf_token }}'
+                },
+                success: function(response) {
+                    if (response.status === 'success') {
+                        {#alert(response.message);#}
+                        $(rowId).remove();
+                    } else {
+                        alert(response.message);
+                    }
+                },
+                error: function() {
+                    alert('Error occurred while deleting user portfolio');
+                }
+            });
+        });
+    });
+    $(document).ready(function(){
+        $('#add-user-portfolio-btn').on('click', function() {
+            const username = $('#new-username').val();
+            const usdBalance = $('#new-usd-balance').val();
+            const eurBalance = $('#new-eur-balance').val();
+            const gbpBalance = $('#new-gbp-balance').val();
+            const jpyBalance = $('#new-jpy-balance').val();
+
+            $.ajax({
+                url: '{% url "add_user_portfolio" %}',
+                type: 'POST',
+                data: {
+                    'username': username,
+                    'usd_balance': usdBalance,
+                    'eur_balance': eurBalance,
+                    'gbp_balance': gbpBalance,
+                    'jpy_balance': jpyBalance,
+                    'csrfmiddlewaretoken': '{{ csrf_token }}'
+                },
+                success: function(response) {
+                    if (response.status === 'success') {
+                        {#alert(response.message);#}
+
+
+                        const newUserId = response.new_user_id;
+                        const newRow = $(`<tr class="table_text" id="user-row-${newUserId}"></tr>`);
+
+
+                        newRow.append(`<td><input type="text" class="user-input username" data-userid="${newUserId}" value="${username}"></td>`);
+                        newRow.append(`<td><input type="number" class="user-input usd" data-userid="${newUserId}" value="${usdBalance}"></td>`);
+                        newRow.append(`<td><input type="number" class="user-input eur" data-userid="${newUserId}" value="${eurBalance}"></td>`);
+                        newRow.append(`<td><input type="number" class="user-input gbp" data-userid="${newUserId}" value="${gbpBalance}"></td>`);
+                        newRow.append(`<td><input type="number" class="user-input jpy" data-userid="${newUserId}" value="${jpyBalance}"></td>`);
+                        newRow.append(`<td><button class="delete-btn" data-userid="${newUserId}">Delete</button></td>`);
+
+                        {#$('table tbody').append(newRow);#}
+                        const lastRow = $('table tbody tr:last');
+                        lastRow.before(newRow);
+
+                        $('#new-username').val('');
+                        $('#new-usd-balance').val('');
+                        $('#new-eur-balance').val('');
+                        $('#new-gbp-balance').val('');
+                        $('#new-jpy-balance').val('');
+                    }
+                    else {
+                        alert(response.message);
+                    }
+                },
+                error: function() {
+                    alert('Error occurred while adding user portfolio');
+                }
+            });
+        });
+    });
+
+    </script>
+</body>
+</html>

@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Your Page Title</title>
+        <style>
+        .button-container {
+            margin-top: 0;
+            margin-left: 70px;
+        }
+
+        .my-button {
+            background-color: #4CAF50;
+            color: white;
+            padding: 10px 20px;
+            font-family: "Helvetica Neue",serif;
+            text-align: center;
+            text-decoration: none;
+            display: inline-block;
+            font-size: 16px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        .my-button:hover {
+            background-color: #45a049;
+        }
+    </style>
+</head>
+<body style="background-color: darkslateblue">
+    <h1 style="font-family: 'Helvetica Neue', serif; font-size: 50px; color: coral; margin-left: 70px; margin-top: 100px">Exchange rates web app</h1>
+    <p style="font-family: 'Helvetica Neue', serif; font-size: 25px; color: coral; margin-left: 70px;"><b>Please login or sign up to proceed:</b></p>
+    <div class="button-container">
+        <button class="my-button" onclick="redirect('login')">Login</button>
+        <button class="my-button" onclick="redirect('signup')" style="margin-left: 5px">Sign up</button>
+    </div>
+    <script>
+        function redirect(URL) {
+            window.location.href = URL;
+        }
+    </script>
+</body>
+</html>

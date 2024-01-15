@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    {% load widget_tweaks %}
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Profile</title>
+    <style>
+        body {
+            background-color: #434252FF;
+            margin: 0;
+        }
+        .messages {
+            color: white;
+            margin-bottom: 20px;
+            font-family: "Helvetica Neue",serif;
+            font-size: 12pt;
+        }
+        .input-field {
+            height: 20px;
+            width: 50%;
+            padding: 10px;
+            box-sizing: border-box;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            display: block;
+            margin: 5px auto auto;
+            text-align: left;
+            font-size: 10pt;
+        }
+        .welcome {
+            color: coral;
+            font-family: "Helvetica Neue", serif;
+            font-size: 25pt;
+            margin-left: 100px;
+            padding-top: 40px;
+        }
+        .balance {
+            color: #ffa850;
+            font-family: "Helvetica Neue", serif;
+            font-size: 15pt;
+            margin-left: 100px;
+        }
+
+        .links{
+            color: coral;
+            padding-right: 45px;
+            float: right;
+
+            font-family: "Helvetica Neue", serif;
+            font-size: 16pt;
+        }
+        table {
+            {#width: 50%;#}
+            border-collapse: collapse;
+            margin-left: 100px ;
+            border-radius: 5px;
+            overflow: hidden;
+            border-spacing: 0;
+        }
+
+        th {
+            border: 2px solid #ffa850;
+            background-color: rgb(65, 66, 100);
+            text-align: center;
+            padding: 8px;
+            height: 20pt;
+            width: 100pt;
+        }
+
+        td {
+            border: 2px solid #ffa850;
+            background-color: rgba(60, 57, 87, 0.72);
+            text-align: center;
+            padding: 8px;
+            height: 30pt;
+            width: 80pt;
+        }
+        .table_text{
+            color: #ffa850;
+            font-size: 12pt;
+            font-family: "Helvetica Neue", serif;
+        }
+        .popup-container {
+            display: none;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -100%);
+            background-color: rgba(60, 57, 87, 0.72);
+            border: 1px solid #ea9c4a;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+            {#z-index: 1;#}
+            width: 50%;
+            height: 30%;
+            border-radius: 10pt;
+            opacity: 0;
+            transition: opacity 0.5s ease;
+
+        }
+        .popup-button {
+            width: 14%;
+            padding: 10px;
+            background-color: #ffa850;
+            color: #030303;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            display: block;
+            margin-top: 20pt;
+            margin-left: 100px;
+            font-family: "Helvetica Neue", serif;
+            font-size: 13pt;
+            font-weight: bold;
+        }
+        .popup-content {
+            text-align: center;
+            font-family: "Helvetica Neue", serif;
+            font-size: 17pt;
+            font-weight: bold;
+            color: #ea9c4a;
+        }
+
+        .close-button {
+            position: absolute;
+            top: 5px;
+            right: 20px;
+            font-size: 30px;
+            cursor: pointer;
+            color: coral;
+        }
+        .exchange-button {
+            width: 15%;
+            height: 12%;
+            padding: 0;
+            background-color: #ffa850;
+            color: #030303;
+            border: none;
+            position: fixed;
+            right: 0;
+            bottom: 0;
+            margin: 10pt;
+            border-radius: 5px;
+            cursor: pointer;
+            display: block;
+            font-family: "Helvetica Neue", serif;
+            font-size: 11pt;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <div class="welcome">
+        {% if request.user.is_authenticated %}
+            <b>Welcome, {{ request.user.username }}!</b>
+            <a class="links" href="{% url 'logout' %}">Logout</a>
+            <a class="links" href="{% url 'admin_page' %}">Administration page</a>
+            <a class="links" href="{% url 'exchange_rates' %}">Exchange rates</a>
+        {% endif %}
+    </div>
+    <div>
+        <div class="balance" style="margin-top: 70px">
+            <p>USD Balance: ${{ user_portfolio.usd_balance }}</p>
+            <p>EUR Balance: {{ user_portfolio.eur_balance }}</p>
+            <p>GBP Balance: {{ user_portfolio.gbp_balance }}</p>
+            <p>JPY Balance: {{ user_portfolio.jpy_balance }}</p>
+        </div>
+        <button class="popup-button" onclick="openPopup()">Exchange currency</button>
+        <div id="popup" class="popup-container">
+            <div class="popup-content">
+                <span onclick="closePopup()" class="close-button">&times;</span>
+                <p>Buy/Sell currency</p>
+                <form method="post" action="">
+                    {% csrf_token %}
+                    {{ form.amount | add_class:"input-field" }}
+                    {{ form.currency | add_class:"input-field" }}
+                    {{ form.action | add_class:"input-field" }}
+                    <button class="exchange-button" type="submit">Exchange</button>
+                </form>
+                <div id="error-message" style="color: red; margin-top: 10px; font-size: 14px;"></div>
+            </div>
+        </div>
+         {% if messages %}
+            <script>
+                function add_error(){
+                    const popup = document.getElementById('popup');
+                    popup.style.opacity = '1';
+                    popup.style.display = 'block';
+                    const err = document.getElementById('error-message');
+                    err.textContent = 'Sorry, you dont have enough currency.'
+                }
+                add_error();
+            </script>
+        {% endif %}
+    </div>
+    <div style="margin-top: 70px; margin-bottom: 20px;">
+        <b class="balance" style="font-size: 20pt">Current rates (per 1$)</b>
+    </div>
+    <div>
+        <table>
+            <thead>
+                <tr class="table_text">
+                    <th>EUR</th>
+                    <th>GBP</th>
+                    <th>JPY</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr class="table_text">
+                    <td id="EUR"></td>
+                    <td id="GBP"></td>
+                    <td id="JPY"></td>
+                </tr>
+            </tbody>
+    </table>
+    </div>
+    <div class="balance" style="margin-top: 8px">
+        <span style="margin-top: 10px; font-size: 12pt">Last updated:</span>
+        <span style="margin-top: 10px; font-size: 12pt" id="lastUpdate">Last updated:</span>
+    </div>
+    <div style="float: right; padding-right: 50px">
+
+    </div>
+    <script>
+        function getCurrencies() {
+            fetch('/currency_app/api/currency_data/EUR/')
+                .then(response => response.json())
+                .then(data => {
+                    const value = document.getElementById('EUR');
+                    value.textContent = data.datasets[0].data[0];
+                })
+            fetch('/currency_app/api/currency_data/GBP/')
+                .then(response => response.json())
+                .then(data => {
+                    const value = document.getElementById('GBP');
+                    value.textContent = data.datasets[0].data[0];
+                })
+            fetch('/currency_app/api/currency_data/JPY/')
+                .then(response => response.json())
+                .then(data => {
+                    const value = document.getElementById('JPY');
+                    const lastUpdate = document.getElementById('lastUpdate');
+                    value.textContent = data.datasets[0].data[0];
+                    lastUpdate.textContent = data.labels[0];
+                })
+        }
+        function refreshData() {
+            getCurrencies();
+            setInterval(getCurrencies, 60000);
+        }
+        function openPopup() {
+            const popup = document.getElementById('popup');
+            popup.style.display = 'block';
+            setTimeout(function() {
+                popup.style.opacity = '1';
+            }, 10);
+        }
+
+        function closePopup() {
+            const popup = document.getElementById('popup');
+            popup.style.opacity = '0';
+            setTimeout(function() {
+                popup.style.display = 'none';
+            }, 600);
+        }
+
+        window.onload = refreshData;
+    </script>
+</body>
+</html>

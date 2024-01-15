@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title></title>
+    <style>
+        .button{
+            width: 120px;
+            height: 40px;
+            padding: 10px;
+            background-color: #f5e89b;
+            color: black;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            display: block;
+            margin: 5px 40px;
+            font-family: "Helvetica Neue", serif;
+            font-size: 12pt;
+        }
+    </style>
+</head>
+<body style="background-color: #3e48c1">
+    <h1 style="font-size: 30pt; font-family: 'Helvetica Neue', serif; color: #f5e89b; margin-left: 40px">My apps</h1>
+    <div>
+    <button class="button" onclick="redirect('currency_app/')">Currency app</button>
+    </div>
+    <script>
+        function redirect(URL) {
+            window.location.href = URL;
+
+        }
+    </script>
+</body>
+</html>
