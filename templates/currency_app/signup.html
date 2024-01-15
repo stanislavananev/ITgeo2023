@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    {% load widget_tweaks %}
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sign up</title>
+        <style>
+        .login-container {
+            background-color: transparent;
+            padding: 80px;
+            border-radius: 8px;
+            text-align: center;
+            max-width: 500px;
+            margin: auto;
+        }
+        .errorlist {
+            display: flex;
+            flex-direction: column;
+            font-family: "Helvetica Neue", serif;
+            font-size: 12pt;
+            align-items: center;
+            justify-content: center;
+            height: 100%;
+            color: #e0c8af;
+            list-style-type: none;
+            margin-top: 10px;
+            padding: 0;
+            }
+
+        .input-field {
+            width: 50%;
+            padding: 10px;
+            box-sizing: border-box;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            display: block;
+            margin: 5px auto auto;
+            text-align: left;
+            font-size: 10pt;
+        }
+
+        .login-button {
+            width: 20%;
+            padding: 10px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            display: block;
+            margin: 5px auto;
+            font-family: "Helvetica Neue", serif;
+            font-size: 10pt;
+        }
+        .register-link {
+            color: coral;
+            text-decoration: none;
+            margin-top: 5px;
+            display: block;
+            font-family: "Helvetica Neue", serif;
+            font-size: 11pt;
+
+        }
+
+        .login-button:hover {
+            background-color: #45a049;
+        }
+    </style>
+</head>
+<body style="background-color: darkslateblue">
+    <div class="login-container">
+        <h2 style="font-family: 'Helvetica Neue', serif; font-size: 30px; color: coral;">Sign up</h2>
+        <form method="post" action="">
+            {% csrf_token %}
+            {{ form.username | add_class:"input-field" }}
+            {{ form.password1 | add_class:"input-field" }}
+            {{ form.password2 | add_class:"input-field" }}
+            {{ form.username.errors }}
+            {{ form.password1.errors }}
+            {{ form.password2.errors }}
+            <button type="submit" class="login-button">Sign up</button>
+        </form>
+        <a class="register-link" href="login">I already have an account</a>
+    </div>
+    <script>
+        const form_fields = document.getElementsByTagName('input')
+        form_fields[1].placeholder='Username';
+        form_fields[2].placeholder='Password';
+        form_fields[3].placeholder='Confirm password';
+
+    </script>
+</body>
+</html>

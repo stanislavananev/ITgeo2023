@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>Exchange Rate Chart</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
+    <style>
+        .acc_button{
+            margin-left: 40px;
+            margin-top: 40px;
+            font-family: 'Helvetica Neue',serif;
+            font-size: 13pt;
+            font-weight: bold;
+            padding: 2pt 8pt 2pt 8pt;
+            color: #434252;
+            background-color: coral;
+            border: 0;
+            border-radius: 4px;
+        }
+        body {
+            background-color: #434252;
+        }
+        h1 {
+            color: white;
+        }
+        #exchangeRateChart {
+            margin: 0 auto;
+            max-width: 800px;
+        }
+    </style>
+</head>
+<body>
+    <div>
+        <button onclick="redirect('profile')" class="acc_button">My profile</button>
+        <div class="container">
+            <div class="row">
+                <div class="col-md-12">
+                    <h1 class="my-4">Exchange Rate Chart</h1>
+                    <div class="form-group">
+                        <label for="currencySelect"></label><select id="currencySelect" class="form-control"></select>
+                    </div>
+                    <button onclick="loadCurrencyData()" class="btn btn-primary mb-4">Load Data</button>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-12">
+                    <div id="exchangeRateChart"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script type="text/javascript">
+        function populateCurrencySelect() {
+            const currencySelect = document.getElementById('currencySelect');
+            fetch('/currency_app/api/currencies/')
+                .then(response => response.json())
+                .then(data => {
+                    data.currencies.forEach(currencyCode => {
+                        const option = document.createElement('option');
+                        option.value = currencyCode;
+                        option.text = currencyCode;
+                        currencySelect.add(option);
+                    });
+                });
+        }
+        let chart;
+        function loadCurrencyData() {
+            const currencyCode = document.getElementById('currencySelect').value;
+            fetch('/currency_app/api/currency_data/' + currencyCode + '/')
+                .then(response => response.json())
+                .then(data => {
+                    const seriesData = data.labels.map((label, index) => {
+                        return {
+                            x: label,
+                            y: data.datasets[0].data[index]
+                        };
+                    });
+
+                    const options = {
+                        series: [{
+                            name: currencyCode,
+                            data: seriesData,
+
+                        }],
+                        stroke: {
+                            colors: ['#ff9400'],
+                            width: 3
+                        },
+                        chart: {
+                            type: 'line',
+                            height: 350,
+                        },
+                        markers: {
+                            size: 3,
+                            colors: ['#ff7300'],
+                            strokeColors: '#f59211',
+                            strokeWidth: 0,
+                            shape: 'square',
+                            hover: {
+                                size: 8,
+                            },
+                            showNullDataPoints: true,
+                        },
+                        xaxis: {
+                            type: 'datetime',
+                            labels: {
+                                style: {
+                                    colors: 'white', // Color for x-axis labels
+                                    fontSize: '14px' // Font size for x-axis labels
+                                }
+                            },
+                        },
+                        yaxis: {
+                            labels: {
+                                style: {
+                                    colors: 'white', // Color for x-axis labels
+                                    fontSize: '14px' // Font size for x-axis labels
+                                }
+                            },
+                        }
+                    };
+
+                    if (chart) {
+                        chart.updateSeries([{
+                            name: currencyCode,
+                            data: seriesData
+                        }]);
+                    } else {
+                        chart = new ApexCharts(document.querySelector("#exchangeRateChart"), options);
+                        chart.render();
+                    }
+                });
+        }
+
+        let buttonFlag = 0;
+        function initializePage() {
+            populateCurrencySelect();
+            refreshDataPeriodically();
+        }
+
+        function refreshDataPeriodically() {
+            setInterval(loadCurrencyData, 60000);
+        }
+        function redirect(URL) {
+            window.location.href = URL;
+        }
+        window.onload = initializePage;
+
+    </script>
+</body>
+</html>
